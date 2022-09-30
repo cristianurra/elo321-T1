@@ -51,7 +51,7 @@ int main( int argc, char **argv )
 
   else
   { // padre
-	  while(1){ /*aca colocar el criterio de parada*/
+	  while(1){ /*aca colocar el criterio de parada, ya que el padre estara constantemente enviando intrucciones a los hijos*/
 		close( p1[0] ); /* cerramos el lado de lectura del pipe 1 */
 		close( p2[0] ); /* cerramos el lado de lectura del pipe 2 */
 		

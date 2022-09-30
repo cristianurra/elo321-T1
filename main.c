@@ -1,83 +1,72 @@
-
 #include <sys/types.h>
-#include <stdio.h>
+#include <fcntl.h>
 #include <unistd.h>
-#include <stdlib.h>
+#include <stdio.h>
+#include <stdlib.h> 
+#include <string.h>
 
-int main(){
-    pid_t pidA; //Creamos el pid para guardar el retorno del fork
-
-    int tuberiaA[2];	//Creamos la variable para el pipe  
-	  pipe(tuberiaA);  //Creamos el pipe
+#define SIZE 512
+ 
+int main( int argc, char **argv )
+{
+  pid_t pid1;
+  int p1[2], readbytes1;
+  char buffer1[SIZE];
+ 
+  pipe( p1 );
+ 
+  if ( (pid1=fork()) == 0 )
+  { // hijo
 	  
-    pidA = fork(); //Hacemos fork para crear el proceso hijo A
+    close( p1[1] ); /* cerramos el lado de escritura del pipe */
+ 
+    while( (readbytes1=read( p1[0], buffer1, SIZE )) > 0)
+      write( 1, buffer1, readbytes1 );
+ 
+    close( p1[0] );
+    exit(0);
+  }
+  
+  
+  pid_t pid2;
+  int p2[2], readbytes2;
+  char buffer2[SIZE];
+ 
+  pipe( p2 );
+ 
+  if ( (pid2=fork()) == 0 )
+  { // hijo
+	  
+    close( p2[1] ); /* cerramos el lado de escritura del pipe */
+	printf("aaa\n");
+    while( (readbytes2=read( p2[0], buffer2, SIZE )) > 0)
+      write( 1, buffer2, readbytes2 );
+    close( p2[0] );
+    exit(0);
+  }
+   
+  
+  
+  
 
-    
-    if (pidA < 0){ //Ocurrio un error
-        printf("Fallo el fork A");
-        return 1;
-    }
-    
+  else
+  { // padre
+	  while(1){ /*aca colocar el criterio de parada*/
+		close( p1[0] ); /* cerramos el lado de lectura del pipe 1 */
+		close( p2[0] ); /* cerramos el lado de lectura del pipe 2 */
+		
+		strcpy( buffer1, "Esto llega a traves de la tuberia 1\n" );  /*esto se envia al proceso hijo 1*/
+		strcpy( buffer2, "Esto llega a traves de la tuberia 2\n" );	/*esto se envia al proceso hijo 2*/
+		
+		write( p1[1], buffer1, strlen( buffer1 ) );
+		write( p2[1], buffer2, strlen( buffer2 ) );
+	 
 
-    
-    
-    else if (pidA == 0){ //Este es el proceso hijo A
-        printf("Soy el proceso hijo A, mi PID es %d\n",getpid());
-        int buffer[2]; //Variable para lectura
-		    close(tuberiaA[1]); //Cerramos el lado de escritura del pipe
-        int i = 0;
-        while(1){
-      			read(tuberiaA[0],buffer,2*sizeof(int)); //Leemos datos del pipe, dos int cada vez
-      			i++;
-      			if (i == 10){ //Queremos leer 9 veces
-      				  break;
-            }
-      			printf("Hijo A n1: %d y n2: %d, i= %d\n",buffer[0],buffer[1],i);
-            
-		    }
-	exit(0);
-    }
-    
-    
-    pid_t pidB;
-    int tuberiaB[2];	//Creamos la variable para el pipe  
-	pipe(tuberiaB);  //Creamos el pipe
-    
-    pidB = fork(); //Hacemos fork para crear el proceso hijo B
-    if (pidB < 0){ //Ocurrio un error
-		printf("Fallo el fork B");
-		return 1;
-    }
-    
-    
-    
-    else if (pidB == 0){ //Este es el proceso hijo B
-        printf("Soy el proceso hijo B, mi PID es %d\n",getpid());
-        int buffer[2]; //Variable para lectura
-		    close(tuberiaB[1]); //Cerramos el lado de escritura del pipe
-        int i = 0;
-        while(1){
-      			read(tuberiaB[0],buffer,2*sizeof(int)); //Leemos datos del pipe, dos int cada vez
-      			i++;
-      			if (i == 10){ //Queremos leer 9 veces
-      				  break;
-            }
-      			printf("Hijo B n1: %d y n2: %d, i= %d\n",buffer[0],buffer[1],i);
-            
-		    }
-	exit(0);
-    }
-
-    
-    else{ //Proceso padre
-        int buffer[100]={1,10,1,30,2,10,5,1,5,1,4,2,5,10,0,10,0,11};		
-        close(tuberiaA[0]); //Cerramos el lado de lectura del pipeA
-        close(tuberiaB[0]); //Cerramos el lado de lectura del pipeA
-        write(tuberiaA[1],buffer,sizeof(int)*100); //Escribimos en el pipe los datos
-        write(tuberiaB[1],buffer,sizeof(int)*100);
-        wait(NULL); //Esperamos al hijo
-        printf("Soy el padre, mis hijos eras  PID: %d,%d, yo soy el PID: %d\n",pidA,pidB,getpid());
-        
-    }   
-    return 0;    
+  }
+  		close( p1[1] ); /*aca se cierran los pipes*/
+		close( p2[1] );
+}
+  waitpid( pid1, NULL, 0 );
+  waitpid( pid2, NULL, 0 );
+  exit( 0 );
 }

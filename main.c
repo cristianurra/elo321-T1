@@ -9,10 +9,11 @@
 #define SIZE 512
 #define LSIZ 128 
 #define RSIZ 10 
+
 int print_lineas();
 int contar_lineas();
 
-int contar_lineas() 
+int contar_productos() 
 {	
 	int c=0;
     char line[RSIZ][LSIZ];
@@ -36,7 +37,7 @@ int contar_lineas()
     return c;
 }
 
-int print_lineas() 
+int mostrar_productos() 
 {	
 	int c=0;
     char line[RSIZ][LSIZ];
@@ -60,6 +61,30 @@ int print_lineas()
     return 0;
 }
 
+int mostrar_pedidos() 
+{	
+	char pedidos[1000];
+	int c=0;
+    char line[RSIZ][LSIZ];
+	char fname[20]="pedidos.txt";
+    FILE *fptr = NULL; 
+    int i = 0;
+    int tot = 0;	
+
+    fptr = fopen(fname, "r");
+    while(fgets(line[i], LSIZ, fptr)) 
+	{
+        line[i][strlen(line[i]) - 1] = '\0';
+        i++;
+    }
+    tot = i;    
+    for(i = 0; i < tot; ++i)
+    {
+        printf(" %s\n", line[i]);
+
+    }
+    return 0;
+}
 
 int main( int argc, char **argv )
 {
@@ -106,8 +131,8 @@ int main( int argc, char **argv )
   else
   { // padre
 	  
-	  printf("Hay %d productos\n",contar_lineas());
-	  print_lineas();
+	  printf("Hay %d productos\n",contar_productos());
+	  mostrar_productos();
 	  
 	  
 	  while(0){ /*aca colocar el criterio de parada, ya que el padre estara constantemente enviando intrucciones a los hijos*/

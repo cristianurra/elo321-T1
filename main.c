@@ -5,15 +5,69 @@
 #include <stdlib.h> 
 #include <string.h>
 
+
 #define SIZE 512
- 
+#define LSIZ 128 
+#define RSIZ 10 
+int print_lineas();
+int contar_lineas();
+
+int contar_lineas() 
+{	
+	int c=0;
+    char line[RSIZ][LSIZ];
+	char fname[20]="productos.txt";
+    FILE *fptr = NULL; 
+    int i = 0;
+    int tot = 0;	
+
+    fptr = fopen(fname, "r");
+    while(fgets(line[i], LSIZ, fptr)) 
+	{
+        line[i][strlen(line[i]) - 1] = '\0';
+        i++;
+    }
+    tot = i;    
+    for(i = 0; i < tot; ++i)
+    {
+        //printf(" %s\n", line[i]);
+        c++;
+    }
+    return c;
+}
+
+int print_lineas() 
+{	
+	int c=0;
+    char line[RSIZ][LSIZ];
+	char fname[20]="productos.txt";
+    FILE *fptr = NULL; 
+    int i = 0;
+    int tot = 0;	
+
+    fptr = fopen(fname, "r");
+    while(fgets(line[i], LSIZ, fptr)) 
+	{
+        line[i][strlen(line[i]) - 1] = '\0';
+        i++;
+    }
+    tot = i;    
+    for(i = 0; i < tot; ++i)
+    {
+        printf(" %s\n", line[i]);
+
+    }
+    return 0;
+}
+
+
 int main( int argc, char **argv )
 {
-  pid_t pid1;
-  int p1[2], readbytes1;
-  char buffer1[SIZE];
- 
-  pipe( p1 );
+	  pid_t pid1;
+	  int p1[2], readbytes1;
+	  char buffer1[SIZE];
+	 
+	  pipe( p1 );
  
   if ( (pid1=fork()) == 0 )
   { // hijo
@@ -38,7 +92,7 @@ int main( int argc, char **argv )
   { // hijo
 	  
     close( p2[1] ); /* cerramos el lado de escritura del pipe */
-	printf("aaa\n");
+
     while( (readbytes2=read( p2[0], buffer2, SIZE )) > 0)
       write( 1, buffer2, readbytes2 );
     close( p2[0] );
@@ -51,7 +105,14 @@ int main( int argc, char **argv )
 
   else
   { // padre
-	  while(1){ /*aca colocar el criterio de parada, ya que el padre estara constantemente enviando intrucciones a los hijos*/
+	  
+	  printf("Hay %d productos\n",contar_lineas());
+	  print_lineas();
+	  
+	  
+	  while(0){ /*aca colocar el criterio de parada, ya que el padre estara constantemente enviando intrucciones a los hijos*/
+		
+		
 		close( p1[0] ); /* cerramos el lado de lectura del pipe 1 */
 		close( p2[0] ); /* cerramos el lado de lectura del pipe 2 */
 		
@@ -60,7 +121,8 @@ int main( int argc, char **argv )
 		
 		write( p1[1], buffer1, strlen( buffer1 ) );
 		write( p2[1], buffer2, strlen( buffer2 ) );
-	 
+		
+
 
   }
   		close( p1[1] ); /*aca se cierran los pipes*/

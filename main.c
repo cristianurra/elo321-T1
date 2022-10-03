@@ -195,6 +195,7 @@ void main()
 		close( p1[1] ); /* cerramos el lado de escritura del pipe */
     while( (readbytes1=read( p1[0], buffer1, SIZE )) > 0){
 		write( 1, buffer1, readbytes1 );
+		
 		}
 		
     close( p1[0] );
@@ -255,7 +256,7 @@ void main()
     fclose(fp);
     visualizacion(lista);
     
-    printf("\n======= Los ID de los productos pedidos son =======:\n \n");
+    printf("\n======= Los ID de los productos pedidos son indicados en cada venta=======:\n \n");
     int timer1=1;
     int timer2=1;
     while (lista->inicio != NULL)  //Aca se empiezan a delegar los pedidos a los procesos hijo
@@ -265,19 +266,6 @@ void main()
             producto prod = productos[i];
             if (strcmp(lista->inicio->dato, prod.nombre) == 0)
             {
-				
-                
-            	
-            	
-            	
-            	
-            	
-            	
-            	
-            	
-				
-				
-				
 				
 
 				//printf("%d\n",codigo);
@@ -294,6 +282,7 @@ void main()
 					sup_inicio(lista);
 					timer1=prod.tiempo_prep;
 					printf("Hijo 1 vende ID %d\n",codigo);
+					printf("====Hasta ahora se ha vendido $%d ====\n",total_ventas);
 					break;
 				}
 
@@ -308,8 +297,14 @@ void main()
 					sup_inicio(lista);
 					timer2=prod.tiempo_prep;
 					printf("Hijo 2 vende ID %d\n",codigo);
+					printf("====Hasta ahora se ha vendido $%d ====\n",total_ventas);
+					break;
 					
-				}				
+				
+					
+				}	
+				
+				printf("====Ambos vendedores estan ocupados===\n");			
 				timer1=timer1-1;
 				timer2=timer2-1;
 
@@ -317,17 +312,20 @@ void main()
 				
 		
             }
+            
         }
-        
-        //sup_inicio(lista);
-
+        if(lista->inicio == NULL){
+			break;
+		}
+	
     }
 	  
-  		close( p1[1] ); /*aca se cierran los pipes*/
-		close( p2[1] );
+
 		
 		waitpid( pid1, NULL, 0 );
 		waitpid( pid2, NULL, 0 );
+		close( p1[1] ); /*aca se cierran los pipes*/
+		close( p2[1] );
 		printf("====Proceso terminado. Se vendio uhn total de $%d ====\n",total_ventas);
 }	
 

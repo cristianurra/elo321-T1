@@ -193,10 +193,12 @@ void main()
 	if ( (pid1=fork()) == 0 ) //Hijo 1
 	{ // hijo 
 		close( p1[1] ); /* cerramos el lado de escritura del pipe */
-    while( (readbytes1=read( p1[0], buffer1, SIZE )) > 0)
+    while( (readbytes1=read( p1[0], buffer1, SIZE )) > 0){
 
-      write( 1, buffer1, readbytes1 );
-		sleep(1);
+		write( 1, buffer1, readbytes1 );
+		sleep(2);
+		}
+		
     close( p1[0] );
     exit(0);
   }
@@ -209,10 +211,12 @@ void main()
 	if ( (pid2=fork()) == 0 )
 	{ // hijo
 		close( p2[1] ); /* cerramos el lado de escritura del pipe */
-		while( (readbytes2=read( p2[0], buffer2, SIZE )) > 0)
+		while( (readbytes2=read( p2[0], buffer2, SIZE )) > 0){
 
 			write( 1, buffer2, readbytes2 );
-			sleep(1);
+			
+			sleep(2);
+		}
     close( p2[0] );
     exit(0);
   }
@@ -223,6 +227,8 @@ void main()
 
   else
   { // aca se ejecuta el padre
+	  
+	int total_ventas=0;
 	  
 	int n_items = contar_productos(); // Cambiar por función
     int i;
@@ -253,8 +259,9 @@ void main()
     fclose(fp);
     visualizacion(lista);
     
-    printf("======= Los pedidos son =======:\n \n");
-    
+    printf("\n======= Los ID de los productos pedidos son =======:\n \n");
+    int timer1=0;
+    int timer2=0;
     while (lista->inicio != NULL)  //Aca se empiezan a delegar los pedidos a los procesos hijo
     {	
         for (i = 0; i < n_items; i++)
@@ -267,30 +274,61 @@ void main()
             	close( p1[0] ); /* cerramos el lado de lectura del pipe 1 */
 				close( p2[0] ); /* cerramos el lado de lectura del pipe 2 */
 				
+				
+				
 				int codigo=prod.codigo;
 				char cod[6];
 				sprintf(cod,"%d\n",codigo);
 				//printf("%d\n",codigo);
-            	strcpy( buffer1, cod);  /*esto se envia al proceso hijo 1*/
-				strcpy( buffer2, cod );	/*esto se envia al proceso hijo 2*/
-				write( p1[1], buffer1, strlen( buffer1 ) );
-				write( p2[1], buffer2, strlen( buffer2 ) );
+				
+				
+				
+				if (timer1<1){ //significa que el proceso hijo 1 esta desocupado
+					strcpy( buffer1, cod);  /*esto se envia al proceso hijo 1*/
+					write( p1[1], buffer1, strlen( buffer1 ) );
+					total_ventas+=prod.precio;
+					sup_inicio(lista);
+					timer1=prod.tiempo_prep;
+					
+				}
+
+
+				if (timer2<1){ //significa que el proceso hijo 1 esta desocupado
+					strcpy( buffer2, cod);  /*esto se envia al proceso hijo 2*/	
+					write( p2[1], buffer2, strlen( buffer2 ) );			
+					total_ventas+=prod.precio;
+					sup_inicio(lista);
+					timer1=prod.tiempo_prep;
+					
+				}				
+		
+
+
+				
 		
             }
         }
+        
         sup_inicio(lista);
+        timer1=timer1-1;
+        timer2=timer2-1;
     }
 	  
   		close( p1[1] ); /*aca se cierran los pipes*/
 		close( p2[1] );
+		
+		  waitpid( pid1, NULL, 0 );
+  waitpid( pid2, NULL, 0 );
+		printf("====Proceso terminado. Se vendio uhn total de $%d ====\n",total_ventas);
 }	
 
     
     
-  waitpid( pid1, NULL, 0 );
-  waitpid( pid2, NULL, 0 );
+
+  
+  
+
   exit( 0 );
-    
     
     
     

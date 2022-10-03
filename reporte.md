@@ -40,6 +40,7 @@ Hijo 2 vende ID 15
 5
 6
 15
-<code><pre>
+</code></pre>
+
 
 Nótese que los procesos hijos muestran el codigo que estan trabajando de forma asincronica respecto a la ejecucion del proceso padre. Por ello es que al ejecutarse es posible que se obtenga un orden un tanto distinto de los resultados mostrados en pantalla.

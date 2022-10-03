@@ -259,7 +259,7 @@ void main()
     fclose(fp);
     visualizacion(lista);
     
-    printf("\n======= Los ID de los productos pedidos son indicados en cada venta=======\n \n");
+    printf("\n======= Los ID de los productos pedidos son indicados en cada venta=======\n Los numeros sueltos corresponden al codigo recibido por los procesos hijo, cual ocurre en forma asincrona al proceso padre. \n");
     int timer1=1;
     int timer2=1;
     int k=0;
@@ -330,13 +330,6 @@ void main()
 		close( p2[1] );
 		printf("====Proceso terminado. Se vendio uhn total de $%d ====\n",total_ventas);
 }	
-
-    
-    
-
-  
-  
-
   exit( 0 );
     
     
